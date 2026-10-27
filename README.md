@@ -216,7 +216,7 @@ See [DEPLOY.md](file:///d:/Users/apind/Desktop/Fair_Score/DEPLOY.md) for full in
 ### Quick Deployment Summary:
 1. Create a free **MongoDB Atlas M0** cluster and allow network access from `0.0.0.0/0`.
 2. Connect your Git repository to **Render** as a **Web Service**.
-3. Set build command: `npm install && npm --prefix client install && npm --prefix server install && npm run build`
+3. Set build command: `npm install --include=dev && npm --prefix client install --include=dev && npm --prefix server install --include=dev && npm run build`
 4. Set start command: `npm start`
 5. Configure environment variables: `NODE_ENV=production` and `MONGODB_URI=<your-atlas-uri>`.
 6. Run `BASE_URL=<render-url> npm run smoke` to verify live operation.

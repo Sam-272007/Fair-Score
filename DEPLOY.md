@@ -45,7 +45,7 @@ FairScore runs as a unified single-origin service on Render where Express serves
    - **Region:** Choose the region matching your Atlas cluster.
    - **Build Command:**
      ```bash
-     npm install && npm --prefix client install && npm --prefix server install && npm run build
+     npm install --include=dev && npm --prefix client install --include=dev && npm --prefix server install --include=dev && npm run build
      ```
    - **Start Command:**
      ```bash
