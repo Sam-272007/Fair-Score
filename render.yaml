@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fairscore
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm --prefix client install && npm --prefix server install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
