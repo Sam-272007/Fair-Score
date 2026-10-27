@@ -4,7 +4,7 @@ import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { isDbConnected } from './db.js';
+import { createEventRouter } from './routes/eventRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,26 +41,8 @@ export function createApp() {
 
   app.use('/api', generalLimiter);
 
-  // Health endpoint (also checks the DB connection)
-  app.get('/api/health', (req, res) => {
-    const connected = isDbConnected();
-    if (!connected) {
-      return res.status(503).json({
-        status: 'degraded',
-        db: 'disconnected',
-        error: {
-          code: 'DATABASE_DISCONNECTED',
-          message: 'Database connection is not ready'
-        }
-      });
-    }
-
-    res.status(200).json({
-      status: 'ok',
-      db: 'connected',
-      timestamp: new Date().toISOString()
-    });
-  });
+  // Mount API router
+  app.use('/api', createEventRouter());
 
   // Serve static client build if present
   if (fs.existsSync(clientDistPath)) {
@@ -76,7 +58,7 @@ export function createApp() {
     if (fs.existsSync(indexPath)) {
       return res.sendFile(indexPath);
     }
-    // If client is not built yet (e.g. dev mode without build)
+    // Fallback if client is not built
     res.status(200).send(`
       <!DOCTYPE html>
       <html>
@@ -100,7 +82,7 @@ export function createApp() {
     });
   });
 
-  // Central error handler
+  // Central error handler returning consistent { error: { code, message } }
   app.use((err, req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const code = err.code || 'INTERNAL_SERVER_ERROR';
