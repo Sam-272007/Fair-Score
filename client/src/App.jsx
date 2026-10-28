@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Link, NavLink } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
+import ColdStartBanner from './components/ColdStartBanner.jsx';
 import Home from './pages/Home.jsx';
 import CreateEvent from './pages/CreateEvent.jsx';
 import QuickAnalyze from './pages/QuickAnalyze.jsx';
@@ -29,6 +30,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <ColdStartBanner />
         <header className="site-header">
           <div className="container nav-container">
             <Link to="/" className="brand">
