@@ -17,6 +17,32 @@ export class ValidationError extends Error {
   }
 }
 
+/**
+ * Validates a single score value against precision (up to 2 decimals) and scale range [min, max].
+ * Rounds to 2 decimal places with a tolerance of 1e-9 to prevent floating-point representation bugs.
+ */
+export function validateAndRoundScore(value, min = 1, max = 10) {
+  if (value === null || value === undefined || value === '' || typeof value === 'boolean') {
+    throw new ValidationError('Score must be a valid number', 'INVALID_SCORE');
+  }
+
+  const num = Number(value);
+  if (!Number.isFinite(num)) {
+    throw new ValidationError('Score must be a finite number', 'INVALID_SCORE');
+  }
+
+  const rounded = Math.round(num * 100) / 100;
+  if (Math.abs(rounded - num) >= 1e-9) {
+    throw new ValidationError('Score must have at most 2 decimal places', 'INVALID_SCORE_PRECISION');
+  }
+
+  if (rounded < min || rounded > max) {
+    throw new ValidationError(`Score must be between ${min} and ${max}`, 'SCORE_OUT_OF_RANGE');
+  }
+
+  return rounded;
+}
+
 export function validateRows(rows) {
   if (!Array.isArray(rows) || rows.length === 0) {
     throw new ValidationError('Dataset is empty. At least one score row is required.', 'EMPTY_DATASET');

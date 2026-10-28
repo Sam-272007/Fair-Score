@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { validateAndRoundScore } from '../lib/validate.js';
 
 /**
  * Mobile-first judge scoring portal (no login required).
@@ -79,7 +80,7 @@ export default function JudgePortal() {
   };
 
   const saveScore = async (teamId, val) => {
-    if (!val || val.trim() === '') {
+    if (!val || String(val).trim() === '') {
       setRowStates((prev) => ({
         ...prev,
         [teamId]: { ...prev[teamId], status: 'idle', errorMsg: null }
@@ -87,16 +88,17 @@ export default function JudgePortal() {
       return;
     }
 
-    const numVal = Number(val);
     const { min, max } = portalData.scoringScale;
-
-    if (Number.isNaN(numVal) || numVal < min || numVal > max) {
+    let roundedVal;
+    try {
+      roundedVal = validateAndRoundScore(val, min, max);
+    } catch (err) {
       setRowStates((prev) => ({
         ...prev,
         [teamId]: {
           ...prev[teamId],
           status: 'error',
-          errorMsg: `Score must be between ${min} and ${max}`
+          errorMsg: err.message
         }
       }));
       return;
@@ -111,7 +113,7 @@ export default function JudgePortal() {
       const res = await fetch(`/api/judge/${token}/scores/${teamId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: numVal })
+        body: JSON.stringify({ value: roundedVal })
       });
 
       if (!res.ok) {

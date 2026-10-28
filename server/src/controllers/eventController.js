@@ -6,6 +6,7 @@ import { generateToken, hashToken, verifyToken } from '../utils/auth.js';
 import { analyze } from '../engine/analyze.js';
 import { planAssignments } from '../engine/assignmentPlanner.js';
 import { UNLUCKY_TEAM_ROWS } from '../engine/sampleScores.js';
+import { validateAndRoundScore } from '../engine/validate.js';
 import { isDbConnected } from '../config/db.js';
 
 // Zod schemas for request validation
@@ -206,13 +207,18 @@ export async function createEvent(req, res, next) {
       for (const s of data.initialScores) {
         const teamId = teamNameToId.get(s.team.trim().toLowerCase());
         const judgeId = judgeNameToId.get(s.judge.trim().toLowerCase());
-        if (teamId && judgeId && typeof s.score === 'number') {
-          scoreDocs.push({
-            eventId: event._id,
-            judgeId,
-            teamId,
-            value: s.score
-          });
+        if (teamId && judgeId) {
+          try {
+            const roundedVal = validateAndRoundScore(s.score, event.scoringScale.min, event.scoringScale.max);
+            scoreDocs.push({
+              eventId: event._id,
+              judgeId,
+              teamId,
+              value: roundedVal
+            });
+          } catch {
+            // Skip invalid score
+          }
         }
       }
 
@@ -279,10 +285,11 @@ export async function createDemoEvent(req, res, next) {
       const tId = teamNameToId.get(r.team);
       const jId = judgeNameToId.get(r.judge);
       judgeAssignedMap.get(jId).add(tId);
+      const validatedScore = validateAndRoundScore(r.score, 1, 10);
       scoresToInsert.push({
         teamId: tId,
         judgeId: jId,
-        value: r.score
+        value: validatedScore
       });
     }
 
@@ -666,27 +673,20 @@ export async function submitJudgeScore(req, res, next) {
       });
     }
 
-    const parseResult = scoreSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({
-        error: { code: 'INVALID_SCORE', message: 'Score must be a valid number' }
-      });
-    }
-
-    const { value } = parseResult.data;
     const { min, max } = event.scoringScale;
 
-    // Validate scale and up to 2 decimal places
-    if (value < min || value > max) {
+    // Validate scale and up to 2 decimal places using shared helper
+    let roundedValue;
+    try {
+      roundedValue = validateAndRoundScore(req.body?.value, min, max);
+    } catch (err) {
       return res.status(400).json({
         error: {
-          code: 'SCORE_OUT_OF_RANGE',
-          message: `Score must be between ${min} and ${max}`
+          code: err.code || 'INVALID_SCORE',
+          message: err.message
         }
       });
     }
-
-    const roundedValue = Math.round(value * 100) / 100;
 
     // Upsert score record so it updates instead of duplicating
     const scoreDoc = await Score.findOneAndUpdate(
