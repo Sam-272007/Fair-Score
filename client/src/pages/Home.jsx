@@ -219,6 +219,91 @@ export default function Home() {
           </p>
         </div>
       </div>
+
+      {/* How it works section */}
+      <div style={{ marginTop: '3.5rem', marginBottom: '2.5rem' }}>
+        <h2 style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: '1.25rem', textAlign: 'center' }}>
+          How FairScore Works
+        </h2>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+          <div className="card" style={{ padding: '1.25rem' }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
+              Step 1
+            </div>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.35rem' }}>Create an Event</h3>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+              Set up your event name, scoring scale, teams, and judges. FairScore generates an unguessable admin capability link and private scoring links for each judge.
+            </p>
+          </div>
+
+          <div className="card" style={{ padding: '1.25rem' }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
+              Step 2
+            </div>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.35rem' }}>Judges Score from Private Links</h3>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+              Judges open their assigned link on any device without password fatigue. Scores autosave per row in the background as they evaluate.
+            </p>
+          </div>
+
+          <div className="card" style={{ padding: '1.25rem' }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
+              Step 3
+            </div>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.35rem' }}>Bias-Corrected Ranking & Warnings</h3>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+              The organizer dashboard computes the bias-corrected ranking and judge harshness bars in real time, with diagnostics that say when results cannot be trusted.
+            </p>
+          </div>
+        </div>
+
+        <div
+          className="card"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+            borderColor: 'var(--color-border-subtle)',
+            padding: '1rem 1.25rem',
+            textAlign: 'center'
+          }}
+        >
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.5 }}>
+            <strong style={{ color: 'var(--color-text)' }}>Security Note:</strong> There are no user accounts by design; anyone with an admin or judge link has that access, so links must be kept private.
+          </p>
+        </div>
+      </div>
+
+      {/* Home page footer */}
+      <footer
+        style={{
+          marginTop: '3rem',
+          paddingTop: '1.5rem',
+          borderTop: '1px solid var(--color-border-subtle)',
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '1.5rem',
+          fontSize: '0.875rem',
+          color: 'var(--color-text-muted)'
+        }}
+      >
+        <a
+          href="https://github.com/Sam-272007/Fair-Score"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'var(--color-primary)', textDecoration: 'none' }}
+        >
+          GitHub Repository
+        </a>
+        <span>·</span>
+        <a
+          href="https://github.com/Sam-272007/Fair-Score#readme"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'var(--color-primary)', textDecoration: 'none' }}
+        >
+          Documentation (README)
+        </a>
+      </footer>
     </div>
   );
 }

@@ -89,6 +89,24 @@ export default function App() {
             <p style={{ marginTop: '0.35rem' }}>
               Free & Open Bias-Corrected Judging · Iterative Normalization · Connectivity & Sensitivity Diagnostics
             </p>
+            <p style={{ marginTop: '0.5rem', fontSize: '0.75rem' }}>
+              <a
+                href="https://github.com/Sam-272007/Fair-Score"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--color-primary)', textDecoration: 'none', marginRight: '1rem' }}
+              >
+                GitHub Repository
+              </a>
+              <a
+                href="https://github.com/Sam-272007/Fair-Score#readme"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--color-primary)', textDecoration: 'none' }}
+              >
+                README & Documentation
+              </a>
+            </p>
           </div>
         </footer>
       </div>
