@@ -10,8 +10,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const clientDistPath = path.resolve(__dirname, '../../client/dist');
 
-export function createApp() {
+export function createApp(options = {}) {
   const app = express();
+
+  // Trust reverse proxy (1 hop) in production only, keeping test and local dev unaffected
+  if (process.env.NODE_ENV === 'production' || options.trustProxy) {
+    app.set('trust proxy', 1);
+  }
 
   // Basic security headers
   app.use(
@@ -25,16 +30,17 @@ export function createApp() {
   app.use(express.json({ limit: '100kb' }));
 
   // General rate limiter
-  const isTest = process.env.NODE_ENV === 'test';
+  const isTest = process.env.NODE_ENV === 'test' && !options.enableRateLimit;
   const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: isTest ? 10000 : 300,
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { xForwardedForHeader: false },
     message: {
       error: {
-        code: 'RATE_LIMIT_EXCEEDED',
-        message: 'Too many requests, please try again later.'
+        code: 'RATE_LIMITED',
+        message: 'Too many requests. Please wait a few minutes and try again.'
       }
     }
   });
@@ -42,7 +48,7 @@ export function createApp() {
   app.use('/api', generalLimiter);
 
   // Mount API router
-  app.use('/api', createEventRouter());
+  app.use('/api', createEventRouter(options));
 
   // Serve static client build if present
   if (fs.existsSync(clientDistPath)) {
