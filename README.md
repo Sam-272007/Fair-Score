@@ -188,17 +188,17 @@ npm run smoke
 ```text
 ======================================================
 🚀 Starting FairScore End-to-End Smoke Test
-🎯 Target Base URL: http://localhost:5055
+🎯 Target Base URL: http://localhost:5000
 ======================================================
 
 [PASS] Step 1: Health Check (/api/health) (HTTP 200, DB: connected)
-[PASS] Step 2: Create Event (POST /api/events) (Event ID: 6ae0b6abb554342374e5fb66)
-[PASS] Step 3: Open Scoring (setup -> scoring)
+[PASS] Step 2: Create Event (POST /api/events) (Event ID: 6ae1d77b43cccdebb4b1761e)
+[PASS] Step 3: Open Scoring (setup -> scoring) 
 [PASS] Step 4: Submit Judge Scores (PUT /api/judge/:token/scores/:teamId) (9 scores recorded)
 [PASS] Step 5: Admin Dashboard & Analysis (GET /api/admin/:id) (Model Winner: Team Pegasus)
-[PASS] Step 6: Lock Event (scoring -> locked)
+[PASS] Step 6: Lock Event (scoring -> locked) 
 [PASS] Step 7: Results Hidden Until Published (GET /api/results/:id -> 404) (HTTP 404)
-[PASS] Step 8: Publish Event (locked -> published)
+[PASS] Step 8: Publish Event (locked -> published) 
 [PASS] Step 9: Fetch Public Results (GET /api/results/:id -> 200) (1st place: Team Pegasus)
 [PASS] Step 10: Stateless Quick Analyze (POST /api/analyze) (Teams: 2)
 
