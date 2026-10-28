@@ -7,6 +7,22 @@
 
 ---
 
+## Live Demo
+
+- **Live Application:** [https://fair-score.onrender.com](https://fair-score.onrender.com)
+- **Source Repository:** [https://github.com/Sam-272007/Fair-Score](https://github.com/Sam-272007/Fair-Score)
+- Demo video: DEMO_VIDEO_URL_HERE
+
+**Try it in 30 seconds:**
+1. Open the live site at [https://fair-score.onrender.com](https://fair-score.onrender.com).
+2. Click **"Create demo event"** on the home page to automatically seed a realistic 12-team, 6-judge hackathon with known scoring bias.
+3. Open the organizer dashboard to explore the side-by-side rankings, judge harshness bars, and reliability diagnostics.
+
+> [!NOTE]
+> FairScore is hosted on Render's free tier. The free instance spins down during inactivity; if the service is asleep, the first request may take approximately 50-70 seconds (about a minute) to wake up. Once awake, requests respond normally.
+
+---
+
 ## 1. Problem Statement
 
 In hackathons, college symposiums, pitch competitions, and capstone project reviews, it is practically impossible for every judge to evaluate every single team. Organizers partition teams among available judges.
@@ -100,16 +116,17 @@ flowchart TD
     EngCl -.->|Stateless Instant Eval| UI
 ```
 
-### Security & Capability Link Model
+### Authentication Design
 
-FairScore utilizes a passwordless capability URL security model:
-- **Capability Tokens:** Generated using `crypto.randomBytes(24).toString('base64url')`.
+FairScore deliberately uses an accountless, capability-based security model rather than traditional usernames and passwords:
+- **Capability Tokens:** Unguessable cryptographically random tokens generated using `crypto.randomBytes(24).toString('base64url')`.
 - **Organizer Admin Link:** Formatted as `/admin/:eventId#t=<token>`.
-  - The secret token resides in the URL fragment (`#t=...`), which browsers **never send to the server** in HTTP requests.
+  - The secret token resides entirely in the URL hash fragment (`#t=...`), which web browsers **never transmit to the server** in HTTP requests.
   - The client reads the fragment and sends it in the `Authorization: Bearer <token>` header.
-  - The server stores only the **SHA-256 hash** of the admin token and compares incoming requests using constant-time `crypto.timingSafeEqual` to eliminate timing side-channel attacks.
+  - The server stores only the **SHA-256 hash** of the admin token and verifies incoming requests using constant-time `crypto.timingSafeEqual` to eliminate timing side-channel attacks.
   - Admin links are cached in local browser storage (`localStorage`) under "My Events".
 - **Judge Links:** Formatted as `/judge/:token`. Judge tokens are stored raw so organizers can re-copy and distribute links. Each judge can only view and score their assigned teams.
+- **Security Trade-off:** There are no user accounts, passwords, or email resets by design. Anyone possessing a capability link holds that authorization (organizer admin or specific judge access), so capability links must be kept private.
 - **Idempotent Upserts:** Scores use a compound unique index on `(eventId, judgeId, teamId)` to ensure re-submissions update rather than duplicate.
 
 ---
@@ -213,15 +230,29 @@ npm run smoke
 
 ## 11. Deployment
 
-See [DEPLOY.md](DEPLOY.md) for full instructions on deploying to **MongoDB Atlas** and **Render**.
+FairScore is live in production at: **[https://fair-score.onrender.com](https://fair-score.onrender.com)**.
 
-### Quick Deployment Summary:
-1. Create a free **MongoDB Atlas M0** cluster and allow network access from `0.0.0.0/0`.
-2. Connect your Git repository to **Render** as a **Web Service**.
-3. Set build command: `npm install --include=dev && npm --prefix client install --include=dev && npm --prefix server install --include=dev && npm run build`
-4. Set start command: `npm start`
-5. Configure environment variables: `NODE_ENV=production` and `MONGODB_URI=<your-atlas-uri>`.
-6. Run `BASE_URL=<render-url> npm run smoke` to verify live operation.
+See [DEPLOY.md](DEPLOY.md) for detailed configuration options.
+
+### Live Deployment Instructions:
+1. **Database:** Deploy a free **MongoDB Atlas M0** cluster and whitelist network access (`0.0.0.0/0`). Create a database user and obtain the connection string:
+   ```text
+   mongodb+srv://<username>:<password>@cluster0.example.mongodb.net/fairscore?retryWrites=true&w=majority
+   ```
+2. **Web Service:** In [Render](https://dashboard.render.com/), create a new **Web Service** connected to your repository (`main` branch).
+3. **Build Command:**
+   ```bash
+   npm install --include=dev && npm --prefix client install --include=dev && npm --prefix server install --include=dev && npm run build
+   ```
+4. **Start Command:**
+   ```bash
+   npm start
+   ```
+5. **Environment Variables:** Set `NODE_ENV=production` and `MONGODB_URI=<your-atlas-uri>`. Set the Health Check Path to `/api/health`.
+6. **Live Verification:** Run the automated end-to-end smoke test against the live endpoint:
+   ```bash
+   BASE_URL=https://fair-score.onrender.com npm run smoke
+   ```
 
 ---
 
@@ -231,10 +262,20 @@ See [DEPLOY.md](DEPLOY.md) for full instructions on deploying to **MongoDB Atlas
 - **Small Sample Variability:** If a judge scores fewer than 3 teams, estimates of their personal strictness or variance are noisy. FairScore flags low sample sizes with diagnostic warnings.
 - **Additive Assumption:** The model assumes an additive relationship: $\text{Score} = \text{Quality} + \text{Bias} + \text{Noise}$. It does not model non-linear judge behavior or criteria interactions.
 - **Supports, Does Not Replace, Human Decisions:** FairScore is a quantitative decision-support tool. It provides visibility into scoring anomalies and rank shifts to assist organizers, committee chairs, and judges in making fair and transparent decisions.
+- **Floating-Point Representation:** JavaScript IEEE-754 numbers can produce floating-point precision artifacts (e.g. `0.1 + 0.2 = 0.30000000000000004`). Valid scores are rounded to 2 decimal places with tolerance checks before storage.
+- **Single-Origin Deployment:** Express serves the built React SPA directly from `client/dist`. Deploying client and server on separate domains requires custom CORS and reverse proxy configuration.
 
 ---
 
-## 13. Credits & Libraries
+## 13. AI Usage
+
+AI coding assistants (**Google Antigravity** and **GitHub Copilot**) were used during development following a detailed written build specification ([docs/BUILD_SPEC.md](docs/BUILD_SPEC.md)).
+- **No AI in Product:** The application contains **zero AI or LLM runtime calls**. All ranking, normalization, graph connectivity, and sensitivity calculations are deterministic statistical and graph algorithms executed entirely in JavaScript.
+- **Author Ownership:** The architecture, code, test suites, and deployment were reviewed, tested, and deployed by the author. The full specification and prompts are preserved in [docs/BUILD_SPEC.md](docs/BUILD_SPEC.md) for transparency.
+
+---
+
+## 14. Credits & Libraries
 
 - **Express**: Lightweight web server and middleware routing.
 - **Mongoose**: MongoDB object modeling and validation.
