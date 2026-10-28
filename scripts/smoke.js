@@ -135,7 +135,7 @@ async function runSmokeTests() {
 
     const scoreSubmissions = [
       { judge: j1, teamId: 't_1', value: 8.5 },
-      { judge: j1, teamId: 't_2', value: 7.0 },
+      { judge: j1, teamId: 't_2', value: 7.25 },
       { judge: j1, teamId: 't_3', value: 9.0 },
       { judge: j2, teamId: 't_1', value: 6.0 },
       { judge: j2, teamId: 't_2', value: 8.0 },
