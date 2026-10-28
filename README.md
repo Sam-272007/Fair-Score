@@ -2,9 +2,8 @@
 
 > **Explainable bias-corrected ranking, judge overlap planning, and reliability diagnostics for hackathons and scored events.**
 
-[![FairScore CI](https://github.com/your-org/Fair-Score/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/Fair-Score/actions/workflows/ci.yml)
+[![FairScore CI](https://github.com/Sam-272007/Fair-Score/actions/workflows/ci.yml/badge.svg)](https://github.com/Sam-272007/Fair-Score/actions/workflows/ci.yml)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
@@ -77,7 +76,7 @@ flowchart TD
     subgraph Client ["Client (React + Vite SPA)"]
         UI["UI Pages: Home, Create, Admin, Judge, Results, QuickAnalyze"]
         EngCl["Pure Calculation Engines (lib/analyze.js)"]
-        AutoSave["Autosave & Polling Hook (10s)"]
+        AutoSave["Autosave (Judge) & Polling (Admin 10s)"]
     end
 
     subgraph Server ["Server (Express + Mongoose)"]
@@ -97,8 +96,7 @@ flowchart TD
     AuthMiddleware --> Controller
     Controller --> EngSrv
     Controller --> EventsCol
-    Controller --> ScoresCol
-    ScoresCol -->|Upsert Writes| ScoresCol
+    Controller -->|Upsert Writes| ScoresCol
     EngCl -.->|Stateless Instant Eval| UI
 ```
 
@@ -126,7 +124,7 @@ FairScore utilizes a passwordless capability URL security model:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/Fair-Score.git
+git clone https://github.com/Sam-272007/Fair-Score.git
 cd Fair-Score
 
 # 2. Install dependencies across root, server, and client packages
@@ -166,16 +164,20 @@ Configure your `.env` file (copied from `.env.example`):
 
 ## 10. Testing
 
-FairScore includes unit tests, graph simulations, and integration suites:
+FairScore includes comprehensive automated tests (33 passing tests total) across calculation engines, API endpoints, and graph simulations:
+
+- **Client Tests (Vitest):** 19 tests in `client/tests/engine.test.js` covering CSV parsing, score validation, raw averaging, z-scores, judge-effect model convergence, bipartite connectivity, ranking ties, assignment planner balance, and seeded Monte Carlo simulation.
+- **Server API Tests (`node:test` + Supertest):** 7 integration tests in `server/tests/api.test.js` using in-memory MongoDB verifying health checks, event creation, capability auth, invalid status transitions, judge scoring bounds, unassigned/locked scoring rejection, upsert idempotency, and public results visibility.
+- **Server Engine Tests (`node:test`):** 7 unit tests in `server/tests/engine.test.js` verifying server-side engine parity, zero-variance handling, and sample datasets.
 
 ```bash
-# Run all tests (client Vitest + server node:test suites)
+# Run all tests across client and server (33 tests)
 npm test
 
-# Run client calculation engine tests with Vitest
+# Run client calculation engine tests with Vitest (19 tests)
 npm run test:client
 
-# Run server node:test integration and engine suite
+# Run server node:test integration and engine suite (14 tests)
 npm run test:server
 
 # Run the 10-step end-to-end smoke test suite
@@ -211,7 +213,7 @@ npm run smoke
 
 ## 11. Deployment
 
-See [DEPLOY.md](file:///d:/Users/apind/Desktop/Fair_Score/DEPLOY.md) for full instructions on deploying to **MongoDB Atlas** and **Render**.
+See [DEPLOY.md](DEPLOY.md) for full instructions on deploying to **MongoDB Atlas** and **Render**.
 
 ### Quick Deployment Summary:
 1. Create a free **MongoDB Atlas M0** cluster and allow network access from `0.0.0.0/0`.

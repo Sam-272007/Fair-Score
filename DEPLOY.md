@@ -41,7 +41,7 @@ FairScore runs as a unified single-origin service on Render where Express serves
 2. **Configure Service Settings:**
    - **Name:** `fairscore` (or your choice)
    - **Environment:** `Node`
-   - **Branch:** `master` (or `main`)
+   - **Branch:** `main`
    - **Region:** Choose the region matching your Atlas cluster.
    - **Build Command:**
      ```bash
@@ -73,7 +73,8 @@ FairScore runs as a unified single-origin service on Render where Express serves
 Once Render reports that your deployment is live, verify the live deployment using the automated end-to-end smoke test script:
 
 ```bash
-BASE_URL=https://your-service-name.onrender.com npm run smoke
+# Verify the live production deployment
+BASE_URL=https://fair-score.onrender.com npm run smoke
 ```
 
 The script will automatically execute:
