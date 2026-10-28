@@ -227,16 +227,25 @@ export default function AdminDashboard() {
         <div className="alert alert-danger" style={{ textAlign: 'center', padding: '2rem' }}>
           <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Access Error</h2>
           <p style={{ marginBottom: '1.5rem' }}>{error}</p>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => {
-              setToken('');
-              window.location.hash = '';
-            }}
-          >
-            Re-enter Admin Token
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => fetchDashboard(false)}
+            >
+              Retry Connection
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => {
+                setToken('');
+                window.location.hash = '';
+              }}
+            >
+              Re-enter Admin Token
+            </button>
+          </div>
         </div>
       </div>
     );

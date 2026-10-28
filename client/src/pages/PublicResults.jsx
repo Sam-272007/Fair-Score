@@ -27,10 +27,13 @@ export default function PublicResults() {
     try {
       const res = await fetch(`/api/results/${eventId}`);
       if (!res.ok) {
-        if (res.status === 404) {
-          throw new Error('Official results have not been published yet or the event does not exist.');
-        }
         const errJson = await res.json().catch(() => ({}));
+        if (res.status === 404) {
+          if (errJson.error?.code === 'RESULTS_NOT_PUBLISHED') {
+            throw new Error('Official results have not been published yet. Please check back once the organizer finalizes scoring.');
+          }
+          throw new Error('This event does not exist or the link is invalid.');
+        }
         throw new Error(errJson.error?.message || 'Failed to load official results');
       }
 
@@ -157,53 +160,59 @@ export default function PublicResults() {
         <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1rem' }}>
           Complete Standings
         </h3>
-        <div className="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th style={{ width: '60px' }}>Rank</th>
-                <th>Team</th>
-                <th style={{ textAlign: 'right' }}>FairScore (Calibrated)</th>
-                <th style={{ textAlign: 'right' }}>Raw Mean</th>
-                <th style={{ textAlign: 'center', width: '90px' }}>Rank Shift</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rankings.map((team) => (
-                <tr key={team.team}>
-                  <td>
-                    <strong style={{ fontFamily: 'var(--font-mono)' }}>#{team.rank}</strong>
-                  </td>
-                  <td>
-                    <strong>{team.team}</strong>
-                  </td>
-                  <td
-                    style={{
-                      textAlign: 'right',
-                      fontFamily: 'var(--font-mono)',
-                      fontWeight: 600,
-                      color: 'var(--color-primary)'
-                    }}
-                  >
-                    {team.score.toFixed(2)}
-                  </td>
-                  <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', color: 'var(--color-text-muted)' }}>
-                    {team.rawMean.toFixed(2)}
-                  </td>
-                  <td style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.8125rem' }}>
-                    {team.shift > 0 ? (
-                      <span style={{ color: 'var(--color-success)' }}>↑ +{team.shift}</span>
-                    ) : team.shift < 0 ? (
-                      <span style={{ color: 'var(--color-danger)' }}>↓ {team.shift}</span>
-                    ) : (
-                      <span style={{ color: 'var(--color-text-subtle)' }}>→ 0</span>
-                    )}
-                  </td>
+        {rankings.length === 0 ? (
+          <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', padding: '1.5rem 0' }}>
+            No team rankings recorded for this event.
+          </p>
+        ) : (
+          <div className="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style={{ width: '60px' }}>Rank</th>
+                  <th>Team</th>
+                  <th style={{ textAlign: 'right' }}>FairScore (Calibrated)</th>
+                  <th style={{ textAlign: 'right' }}>Raw Mean</th>
+                  <th style={{ textAlign: 'center', width: '90px' }}>Rank Shift</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {rankings.map((team) => (
+                  <tr key={team.team}>
+                    <td>
+                      <strong style={{ fontFamily: 'var(--font-mono)' }}>#{team.rank}</strong>
+                    </td>
+                    <td>
+                      <strong>{team.team}</strong>
+                    </td>
+                    <td
+                      style={{
+                        textAlign: 'right',
+                        fontFamily: 'var(--font-mono)',
+                        fontWeight: 600,
+                        color: 'var(--color-primary)'
+                      }}
+                    >
+                      {team.score.toFixed(2)}
+                    </td>
+                    <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', color: 'var(--color-text-muted)' }}>
+                      {team.rawMean.toFixed(2)}
+                    </td>
+                    <td style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.8125rem' }}>
+                      {team.shift > 0 ? (
+                        <span style={{ color: 'var(--color-success)' }}>↑ +{team.shift}</span>
+                      ) : team.shift < 0 ? (
+                        <span style={{ color: 'var(--color-danger)' }}>↓ {team.shift}</span>
+                      ) : (
+                        <span style={{ color: 'var(--color-text-subtle)' }}>→ 0</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Plain-Language Methodology Note */}

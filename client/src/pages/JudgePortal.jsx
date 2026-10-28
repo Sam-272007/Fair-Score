@@ -237,94 +237,103 @@ export default function JudgePortal() {
       </div>
 
       {/* Assigned Teams List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {assignedTeams.map((team, idx) => {
-          const row = rowStates[team.id] || { value: '', status: 'idle', errorMsg: null };
+      {assignedTeams.length === 0 ? (
+        <div className="card" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+          <p>No teams have been assigned to you for scoring yet.</p>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-subtle)', marginTop: '0.25rem' }}>
+            Please contact the event organizer to assign teams.
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {assignedTeams.map((team, idx) => {
+            const row = rowStates[team.id] || { value: '', status: 'idle', errorMsg: null };
 
-          return (
-            <div
-              key={team.id}
-              className="card"
-              style={{
-                padding: '1rem',
-                borderLeft: row.status === 'saved' ? '4px solid var(--color-success)' : '4px solid var(--color-border)'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span
-                    style={{
-                      fontSize: '0.75rem',
-                      color: 'var(--color-text-subtle)',
-                      fontFamily: 'var(--font-mono)'
-                    }}
-                  >
-                    #{idx + 1}
-                  </span>
-                  <strong style={{ fontSize: '1rem', color: 'var(--color-text)' }}>{team.name}</strong>
-                </div>
-
-                {/* Status indicator */}
-                <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                  {row.status === 'saving' && (
-                    <span style={{ color: 'var(--color-primary)' }}>Saving...</span>
-                  )}
-                  {row.status === 'saved' && (
-                    <span style={{ color: 'var(--color-success)' }}>Saved ✓</span>
-                  )}
-                  {row.status === 'error' && (
-                    <button
-                      type="button"
-                      onClick={() => saveScore(team.id, row.value)}
+            return (
+              <div
+                key={team.id}
+                className="card"
+                style={{
+                  padding: '1rem',
+                  borderLeft: row.status === 'saved' ? '4px solid var(--color-success)' : '4px solid var(--color-border)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span
                       style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--color-danger)',
-                        cursor: 'pointer',
-                        padding: 0,
-                        textDecoration: 'underline'
+                        fontSize: '0.75rem',
+                        color: 'var(--color-text-subtle)',
+                        fontFamily: 'var(--font-mono)'
                       }}
                     >
-                      Failed · Tap to retry
-                    </button>
-                  )}
-                </div>
-              </div>
+                      #{idx + 1}
+                    </span>
+                    <strong style={{ fontSize: '1rem', color: 'var(--color-text)' }}>{team.name}</strong>
+                  </div>
 
-              {/* Input row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <input
-                  type="number"
-                  step="0.1"
-                  min={scoringScale.min}
-                  max={scoringScale.max}
-                  disabled={!isScoringOpen}
-                  placeholder={`Score (${scoringScale.min}-${scoringScale.max})`}
-                  className="form-input"
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '1.125rem',
-                    fontWeight: 600,
-                    maxWidth: '180px'
-                  }}
-                  value={row.value}
-                  onChange={(e) => handleScoreChange(team.id, e.target.value)}
-                  onBlur={() => saveScore(team.id, row.value)}
-                />
-                <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-                  / {scoringScale.max}
-                </span>
-              </div>
-
-              {row.errorMsg && (
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-danger)', marginTop: '0.375rem' }}>
-                  {row.errorMsg}
+                  {/* Status indicator */}
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                    {row.status === 'saving' && (
+                      <span style={{ color: 'var(--color-primary)' }}>Saving...</span>
+                    )}
+                    {row.status === 'saved' && (
+                      <span style={{ color: 'var(--color-success)' }}>Saved ✓</span>
+                    )}
+                    {row.status === 'error' && (
+                      <button
+                        type="button"
+                        onClick={() => saveScore(team.id, row.value)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--color-danger)',
+                          cursor: 'pointer',
+                          padding: 0,
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Failed · Tap to retry
+                      </button>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+
+                {/* Input row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={scoringScale.min}
+                    max={scoringScale.max}
+                    disabled={!isScoringOpen}
+                    placeholder={`Score (${scoringScale.min}-${scoringScale.max})`}
+                    className="form-input"
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '1.125rem',
+                      fontWeight: 600,
+                      maxWidth: '180px'
+                    }}
+                    value={row.value}
+                    onChange={(e) => handleScoreChange(team.id, e.target.value)}
+                    onBlur={() => saveScore(team.id, row.value)}
+                  />
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+                    / {scoringScale.max}
+                  </span>
+                </div>
+
+                {row.errorMsg && (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--color-danger)', marginTop: '0.375rem' }}>
+                    {row.errorMsg}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.8125rem', color: 'var(--color-text-subtle)' }}>
         FairScore · Changes are automatically saved as you enter scores.
