@@ -181,20 +181,22 @@ Configure your `.env` file (copied from `.env.example`):
 
 ## 10. Testing
 
-FairScore includes comprehensive automated tests (33 passing tests total) across calculation engines, API endpoints, and graph simulations:
+FairScore includes comprehensive automated tests (56 passing tests total) across calculation engines, API endpoints, reverse-proxy integration, floating-point decimal precision, and graph simulations:
 
 - **Client Tests (Vitest):** 19 tests in `client/tests/engine.test.js` covering CSV parsing, score validation, raw averaging, z-scores, judge-effect model convergence, bipartite connectivity, ranking ties, assignment planner balance, and seeded Monte Carlo simulation.
 - **Server API Tests (`node:test` + Supertest):** 7 integration tests in `server/tests/api.test.js` using in-memory MongoDB verifying health checks, event creation, capability auth, invalid status transitions, judge scoring bounds, unassigned/locked scoring rejection, upsert idempotency, and public results visibility.
+- **Decimal Precision Tests (`node:test`):** 20 tests in `server/tests/decimal.test.js` verifying shared score validation across valid decimal values (e.g. 8.5, 7.25, 6.1, 9.7, 0.1+0.2) and robust 400 rejection for invalid inputs (>2 decimals, out of range, non-numeric).
+- **Reverse-Proxy & Rate-Limiting Tests (`node:test`):** 3 tests in `server/tests/ratelimit.test.js` verifying proxy IP resolution under single-hop reverse proxies, client IP isolation, demo event rate limits (20/hr), and standardized `{error:{code:'RATE_LIMITED', message:'...'}}` responses.
 - **Server Engine Tests (`node:test`):** 7 unit tests in `server/tests/engine.test.js` verifying server-side engine parity, zero-variance handling, and sample datasets.
 
 ```bash
-# Run all tests across client and server (33 tests)
+# Run all tests across client and server (56 tests)
 npm test
 
 # Run client calculation engine tests with Vitest (19 tests)
 npm run test:client
 
-# Run server node:test integration and engine suite (14 tests)
+# Run server node:test integration, decimal, ratelimit, and engine suites (37 tests)
 npm run test:server
 
 # Run the 10-step end-to-end smoke test suite
@@ -262,7 +264,8 @@ See [DEPLOY.md](DEPLOY.md) for detailed configuration options.
 - **Small Sample Variability:** If a judge scores fewer than 3 teams, estimates of their personal strictness or variance are noisy. FairScore flags low sample sizes with diagnostic warnings.
 - **Additive Assumption:** The model assumes an additive relationship: $\text{Score} = \text{Quality} + \text{Bias} + \text{Noise}$. It does not model non-linear judge behavior or criteria interactions.
 - **Supports, Does Not Replace, Human Decisions:** FairScore is a quantitative decision-support tool. It provides visibility into scoring anomalies and rank shifts to assist organizers, committee chairs, and judges in making fair and transparent decisions.
-- **Floating-Point Representation:** JavaScript IEEE-754 numbers can produce floating-point precision artifacts (e.g. `0.1 + 0.2 = 0.30000000000000004`). Valid scores are rounded to 2 decimal places with tolerance checks before storage.
+- **Floating-Point Representation:** JavaScript IEEE-754 numbers can produce floating-point precision artifacts (e.g. `0.1 + 0.2 = 0.30000000000000004`). Scores are validated with a shared tolerance helper (`validateAndRoundScore`) and rounded to 2 decimal places before transmission and database storage.
+- **Rate Limiting & Proxy Configuration:** Express rate limiters protect the API (300 req/15min general, 120 req/min for general writes, and a dedicated 20 req/hour limit for demo event generation). In production, `trust proxy: 1` is configured for single-hop TLS terminators like Render.
 - **Single-Origin Deployment:** Express serves the built React SPA directly from `client/dist`. Deploying client and server on separate domains requires custom CORS and reverse proxy configuration.
 
 ---
