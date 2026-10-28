@@ -11,7 +11,7 @@
 
 - **Live Application:** [https://fair-score.onrender.com](https://fair-score.onrender.com)
 - **Source Repository:** [https://github.com/Sam-272007/Fair-Score](https://github.com/Sam-272007/Fair-Score)
-- Demo video: DEMO_VIDEO_URL_HERE
+- Demo video: [DEMO_VIDEO_URL_HERE](https://drive.google.com/file/d/1tw3cNQMmXY2K--unSkp_QbUSmhHoK-bc/view?usp=sharing)
 
 **Try it in 30 seconds:**
 1. Open the live site at [https://fair-score.onrender.com](https://fair-score.onrender.com).
